@@ -159,7 +159,7 @@ def people_counter():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index-with-background.html')
 
 
 if __name__ == '__main__':
