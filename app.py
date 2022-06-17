@@ -3,6 +3,7 @@ import cv2
 import os
 import time
 import numpy as np
+import requests
 from flask import Flask, render_template, Response
 from edge_impulse_linux.image import ImageImpulseRunner
 
@@ -14,6 +15,8 @@ countPeople = 0
 countPeopleList = []
 inferenceSpeed = 0
 videoCaptureDeviceId = int(0) # use 0 for web camera
+use_soracom = True
+
     
 def now():
     return round(time.time() * 1000)
@@ -25,6 +28,7 @@ def gen_frames():  # generate frame by frame from camera
     global countPeople
     global countPeopleList
     global inferenceSpeed
+    forwarding_timer = 0
 
     while True:
         
@@ -33,6 +37,7 @@ def gen_frames():  # generate frame by frame from camera
                 model_info = runner.init()
                 print('Loaded runner for "' + model_info['project']['owner'] + ' / ' + model_info['project']['name'] + '"')
                 labels = model_info['model_parameters']['labels']
+                
 
                 camera = cv2.VideoCapture(videoCaptureDeviceId)
                 ret = camera.read()[0]
@@ -82,6 +87,10 @@ def gen_frames():  # generate frame by frame from camera
                         countPeopleList.pop()
                         countPeopleList.insert(0,countPeople)
                     # print(countPeopleList)
+
+                    if(((now() - forwarding_timer)/1000) > 10 & use_soracom):
+                        send_results()
+                        forwarding_timer = now()
                     ret, buffer = cv2.imencode('.jpg', img)
                     frame = buffer.tobytes()
                     yield (b'--frame\r\n'
@@ -118,6 +127,7 @@ def get_ads():
         else:
             ret, buffer = cv2.imencode('.jpg', ad3)
         
+        
         frame = buffer.tobytes()
         
         yield (b'--frame\r\n'
@@ -136,6 +146,13 @@ def get_people():
         # print(countPeople)
         yield "data:" + str(countPeople) + "\n\n"
         time.sleep(0.1)
+
+def send_results():
+    global countPeople
+    url = 'http://harvest.soracom.io'
+    obj = {'countPeople' : countPeople}
+    print(obj)
+    x = requests.post(url, json = obj)
 
 @app.route('/video_feed')
 def video_feed():
@@ -159,8 +176,7 @@ def people_counter():
 
 @app.route('/')
 def index():
-    return render_template('index-with-background.html')
-
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
