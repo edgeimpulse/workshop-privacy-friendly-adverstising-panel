@@ -12,10 +12,10 @@ app = Flask(__name__, static_folder='templates/assets')
 runner = None
 scaleFactor = 5
 countPeople = 0
-countPeopleList = []
+countPeopleList = [0]
 inferenceSpeed = 0
 videoCaptureDeviceId = int(0) # use 0 for web camera
-use_soracom = True
+use_soracom = False
 
     
 def now():
@@ -28,7 +28,8 @@ def gen_frames():  # generate frame by frame from camera
     global countPeople
     global countPeopleList
     global inferenceSpeed
-    forwarding_timer = 0
+    forwarding_inference_timer = 0
+    uploading_image_timer = 0
 
     while True:
         
@@ -88,10 +89,15 @@ def gen_frames():  # generate frame by frame from camera
                         countPeopleList.insert(0,countPeople)
                     # print(countPeopleList)
 
-                    if(((now() - forwarding_timer)/1000) > 10 & use_soracom):
-                        send_results()
-                        forwarding_timer = now()
+                    if(((now() - forwarding_inference_timer)/1000) > 10):
+                        send_inference()
+                        forwarding_inference_timer = now()
+                    
                     ret, buffer = cv2.imencode('.jpg', img)
+                    if(((now() - uploading_image_timer)/1000) > 60):
+                        send_image(buffer)
+                        uploading_image_timer = now()
+
                     frame = buffer.tobytes()
                     yield (b'--frame\r\n'
                         b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # concat frame one by one and show result
@@ -147,12 +153,22 @@ def get_people():
         yield "data:" + str(countPeople) + "\n\n"
         time.sleep(0.1)
 
-def send_results():
+def send_inference():
     global countPeople
-    url = 'http://harvest.soracom.io'
-    obj = {'countPeople' : countPeople}
-    print(obj)
-    x = requests.post(url, json = obj)
+    if(use_soracom):
+        url = 'http://harvest.soracom.io'
+        files = {'countPeople' : countPeople}
+        print(obj)
+        x = requests.post(url, json = obj)
+
+def send_image(image):
+    global countPeople
+    if(use_soracom):
+        url = 'http://harvest-files.soracom.io'
+        media = {'media' : image}
+        print(obj)
+        x = requests.post(url, files = media)
+
 
 @app.route('/video_feed')
 def video_feed():
