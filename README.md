@@ -73,13 +73,15 @@ Flash the QR Code with your mobile phone and start collecting data.
 
 *Ideally you want your pictures to be as close as the production environment. For example, if you intend to place your advertising screen on a mall, try to collect the pictures at the same place where your screen will be. This is not always possible for an application that will be deployed on unknown places, in that case, try to keep diversity in the images you will collect. You will probably need more data to obtain a good accuracy but your model will be more general.*
 
-Collect about 100 images and make sure you **split** your samples between your **training set** and your **testing set**:
+Collect about 100 images and make sure you **split** your samples between your **training set** and your **testing set**. We will use this test dataset to validate our model later. To do so, click on **Perform a train/test split** under the **Dashboard** view.
+
+Go back on the **Data acquisition** view and click on **Labeling queue**. 
 
 ![Data acquisition with data](docs/studio-data-acquisition.png).
 
-Click on **Labeling queue**. This will open a new page where you can manually draw bounding boxes around the faces:
+This will open a new page where you can manually draw bounding boxes around the faces:
 
-![Labeling queue](docs/studio-labeling-queue.png).
+![Labeling queue](docs/studio-labeling-queue.png)
 
 *This process can be tedious, however having a good dataset will help on reaching a good accuracy.*
 
@@ -109,12 +111,62 @@ Click on **Labeling queue**. This will open a new page where you can manually dr
 
 Once all your data has been labeled, you can navigate to the **Create Impulse tab**
 
-### Train your model
+### Create your machine learning pipeline
+
+After collecting data for your project, you can now create your Impulse. A complete Impulse will consist of 3 main building blocks: input block, processing block and a learning block.
+
+**Here you will define your own machine learning pipeline.**
+
+One of the beauty of FOMO is its fully convolutional nature, which means that just the ratio is set. Thus, it gives you more flexibility in its usage compared to the classical Object detection method. For this tutorial we have been using **96x96 images** but it will accepts other resolutions as long as the images are square.
+To configure this, go to Create impulse, set the image width and image height to 96, the 'resize mode' to Fit shortest axis and add the 'Images' and 'Object Detection (Images)' blocks. Then click Save impulse.
+
+![Create impulse](docs/studio-create-impulse.png)
+
+### Pre-process your images
+
+Generating features is an important step in Embedded Machine Learning. It will create features that are meaningful for the Neural Network to learn on instead of learning directly on the raw data.
+
+To configure your processing block, click **Images** in the menu on the left. This will show you the raw data on top of the screen (you can select other files via the drop-down menu), and the results of the processing step on the right. You can use the options to switch between 'RGB' and 'Grayscale' modes. Then click **Save parameters**.
+
+![Image pre-processing block](docs/studio-image-preprocessing.png)
+
+This will send you to the 'Feature generation' screen that will:
+
+- Resize all the data.
+- Apply the processing block on all this data.
+- Create a 2D visualization of your complete dataset.
+
+Click **Generate features** to start the process.
+
+### Train your model using FOMO
+
+With all data processed it's time to start training our FOMO model. The model will take an image as input and output the objects detected using centroids.
+
+![FOMO training](docs/studio-fomo-training.png)
 
 ### Validate your model using your test dataset
 
+With the model trained let's try it out on some test data. When collecting the data we split the data up between a training and a testing dataset. The model was trained only on the training data, and thus we can use the data in the testing dataset to validate how well the model will work on data that has been unseen during the training.
+
+![Model testing](docs/studio-model-testing.png)
+
 ### Validate your model on the device
 
+With the impulse designed, trained and verified you can deploy this model back to your device.
+
+This makes the model run without an internet connection, minimizes latency, and runs with minimum power consumption. Edge Impulse can package up the complete impulse - including the preprocessing steps, neural network weights, and classification code - in a single C++ library or linux executable that you can include in your embedded software.
+
+#### Running the impulse on a Linux-based device
+
+From your Raspberry Pi, make sure to install the dependencies. You can find the procedure on the [Edge Impulse documentation website](https://docs.edgeimpulse.com/docs/development-platforms/officially-supported-cpu-gpu-targets/raspberry-pi-4)
+
+From the terminal just run `edge-impulse-linux-runner --clean`. This will build and download your model, and then run it on your development board. If you're on the same network you can get a view of the camera, and the classification results directly from your dev board. You'll see a line like:
+
+```
+Want to see a feed of the camera and live classification in your browser? Go to http://192.168.8.117:4912
+```
+
+![faces fomo](docs/faces-fomo.gif)
 
 ## Setup Soracom
 
