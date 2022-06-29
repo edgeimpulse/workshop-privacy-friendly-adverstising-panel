@@ -14,10 +14,9 @@ scaleFactor = 5
 countPeople = 0
 countPeopleList = [0]
 inferenceSpeed = 0
-videoCaptureDeviceId = int(0) # use 0 for web camera
+videoCaptureDeviceId = int(1) # use 0 for web camera
 use_soracom = False
-
-    
+  
 def now():
     return round(time.time() * 1000)
 
@@ -157,17 +156,17 @@ def send_inference():
     global countPeople
     if(use_soracom):
         url = 'http://harvest.soracom.io'
-        files = {'countPeople' : countPeople}
+        obj = {'countPeople' : countPeople}
         print(obj)
         x = requests.post(url, json = obj)
 
 def send_image(image):
-    global countPeople
+    
     if(use_soracom):
         url = 'http://harvest-files.soracom.io'
-        media = {'media' : image}
-        print(obj)
-        x = requests.post(url, files = media)
+        headers = {"content-type":"image/jpeg"}
+        files = {'image' : image.tobytes()}
+        x = requests.put(url, files = files, headers = headers)
 
 
 @app.route('/video_feed')
@@ -195,4 +194,4 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=3001)
