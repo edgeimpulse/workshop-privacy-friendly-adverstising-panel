@@ -156,9 +156,9 @@ With the impulse designed, trained and verified you can deploy this model back t
 
 This makes the model run without an internet connection, minimizes latency, and runs with minimum power consumption. Edge Impulse can package up the complete impulse - including the preprocessing steps, neural network weights, and classification code - in a single C++ library or linux executable that you can include in your embedded software.
 
-#### Running the impulse on a Linux-based device
+*For this tutorial, we are using a Raspberry Pi but the following procedures should work on any linux x86 or MacOS devices.*
 
-From your Raspberry Pi, make sure to install the dependencies. You can find the procedure on the [Edge Impulse documentation website](https://docs.edgeimpulse.com/docs/development-platforms/officially-supported-cpu-gpu-targets/raspberry-pi-4)
+ From your Raspberry Pi, make sure to install the dependencies. You can find the procedure on the [Edge Impulse documentation website](https://docs.edgeimpulse.com/docs/development-platforms/officially-supported-cpu-gpu-targets/raspberry-pi-4)
 
 From the terminal just run `edge-impulse-linux-runner --clean`. This will build and download your model, and then run it on your development board. If you're on the same network you can get a view of the camera, and the classification results directly from your dev board. You'll see a line like:
 
@@ -168,9 +168,53 @@ Want to see a feed of the camera and live classification in your browser? Go to 
 
 ![faces fomo](docs/faces-fomo.gif)
 
-## Setup Soracom
+Great, now we have a model that can locate our faces in the image! Now to anonymise the image, several techniques exist. For this tutorial, we will just draw a white circle on the image on top of the frame.
 
 
-## Run the end application
+## Use Edge Impulse Python SDK to integrate your custom model in a custom application
+
+We built a small Python application that will run the inference on your device, draw a white circle on the faces location and display a web page with the results.
+
+You can freely customize this application as you wish to create something that specifically match your business logic!
+
+To run the application you will need to install [Python3](https://www.python.org/downloads/) its package manager `pip3`.
+
+Clone [this repository](https://github.com/edgeimpulse/workshop-soracom-privacy-friendly-adverstising-panel) locally:
+
+```
+git clone https://github.com/edgeimpulse/workshop-soracom-privacy-friendly-adverstising-panel
+cd workshop-soracom-privacy-friendly-adverstising-panel/
+```
+
+Install the dependencies:
+
+```
+pip3 install -r requirements.txt
+```
+
+You will also need to install `flask`:
+
+```
+pip3 install -U Flask
+```
+
+Download your custom model at the root of this repository:
+
+```
+edge-impulse-linux-runner --download modelfile.eim
+```
+
+And run the application:
+
+```
+python3 app.py
+```
 
 ![gif](templates/assets/render.gif)
+
+*Note: If you have several webcam attached to your computer, you can change the index of your camera in `app.py` line 13: `videoCaptureDeviceId = int(0) # use 0 for web camera`. You can also import a video stream and adapt the code easily, feel free to have a look at our [python images example](https://github.com/edgeimpulse/linux-sdk-python/tree/master/examples/image).*
+
+*Note 2: If you are planning on using this on a distant device and don't have access to a monitor connected to that device, replace the last line with: `app.run(host="0.0.0.0", debug=True)`, it will broadcast the web application to your local network.*
+
+## Send the inference results with Soracom
+

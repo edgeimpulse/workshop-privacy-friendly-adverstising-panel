@@ -1,4 +1,3 @@
-from turtle import pencolor
 import cv2
 import os
 import time
