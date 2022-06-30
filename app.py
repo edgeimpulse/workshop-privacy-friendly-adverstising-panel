@@ -14,7 +14,7 @@ countPeople = 0
 countPeopleList = [0]
 inferenceSpeed = 0
 videoCaptureDeviceId = int(1) # use 0 for web camera
-use_soracom = False
+use_soracom = True
   
 def now():
     return round(time.time() * 1000)
@@ -86,16 +86,17 @@ def gen_frames():  # generate frame by frame from camera
                         countPeopleList.pop()
                         countPeopleList.insert(0,countPeople)
                     # print(countPeopleList)
-
-                    if(((now() - forwarding_inference_timer)/1000) > 10):
-                        send_inference()
-                        forwarding_inference_timer = now()
                     
-                    ret, buffer = cv2.imencode('.jpg', img)
-                    if(((now() - uploading_image_timer)/1000) > 60):
-                        send_image(buffer)
-                        uploading_image_timer = now()
+                    if(use_soracom):
+                        if(((now() - forwarding_inference_timer)/1000) > 10):
+                            send_inference()
+                            forwarding_inference_timer = now()
+                        
+                        if(((now() - uploading_image_timer)/1000) > 60):
+                            send_image(img)
+                            uploading_image_timer = now()
 
+                    ret, buffer = cv2.imencode('.jpg', img)
                     frame = buffer.tobytes()
                     yield (b'--frame\r\n'
                         b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # concat frame one by one and show result
@@ -153,19 +154,19 @@ def get_people():
 
 def send_inference():
     global countPeople
-    if(use_soracom):
-        url = 'http://harvest.soracom.io'
-        obj = {'countPeople' : countPeople}
-        print(obj)
-        x = requests.post(url, json = obj)
+    
+    url = 'http://harvest.soracom.io'
+    obj = {'countPeople' : countPeople}
+    print(obj)
+    x = requests.post(url, json = obj)
 
 def send_image(image):
     
-    if(use_soracom):
-        url = 'http://harvest-files.soracom.io'
-        headers = {"content-type":"image/jpeg"}
-        files = {'image' : image.tobytes()}
-        x = requests.put(url, files = files, headers = headers)
+    cv2.imwrite('image.jpg', image) 
+    url = 'http://harvest-files.soracom.io'
+    headers = {"content-type":"image/jpeg"}
+    files = {'file': ('image.jpg', open('image.jpg', 'rb'), 'image/jpg', {'Expires': '0'})}
+    x = requests.put(url, files = files)
 
 
 @app.route('/video_feed')

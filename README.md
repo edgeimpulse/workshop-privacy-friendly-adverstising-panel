@@ -212,7 +212,7 @@ python3 app.py
 
 ![gif](templates/assets/render.gif)
 
-*Note: If you have several webcam attached to your computer, you can change the index of your camera in `app.py` line 13: `videoCaptureDeviceId = int(0) # use 0 for web camera`. You can also import a video stream and adapt the code easily, feel free to have a look at our [python images example](https://github.com/edgeimpulse/linux-sdk-python/tree/master/examples/image).*
+*Note: If you have several webcam attached to your computer, you can change the index of your camera in `app.py` line 16: `videoCaptureDeviceId = int(0) # use 0 for web camera`. You can also import a video stream and adapt the code easily, feel free to have a look at our [python images example](https://github.com/edgeimpulse/linux-sdk-python/tree/master/examples/image).*
 
 *Note 2: If you are planning on using this on a distant device and don't have access to a monitor connected to that device, replace the last line with: `app.run(host="0.0.0.0", debug=True)`, it will broadcast the web application to your local network.*
 
