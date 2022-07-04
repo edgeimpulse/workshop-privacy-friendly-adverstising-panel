@@ -162,11 +162,18 @@ def send_inference():
 
 def send_image(image):
     
-    cv2.imwrite('image.jpg', image) 
+    cv2.imwrite('image.jpg', image)
+
     url = 'http://harvest-files.soracom.io'
     headers = {"content-type":"image/jpeg"}
-    files = {'file': ('image.jpg', open('image.jpg', 'rb'), 'image/jpg', {'Expires': '0'})}
-    x = requests.put(url, files = files)
+
+    img = cv2.imread('image.jpg')
+    # encode image as jpeg
+    _, img_encoded = cv2.imencode('.jpg', img)
+    # send http request with image and receive response
+    response = requests.put(url, data=img_encoded.tostring(), headers=headers)
+    # decode response
+    #print(json.loads(response.text))
 
 
 @app.route('/video_feed')

@@ -218,3 +218,34 @@ python3 app.py
 
 ## Send the inference results with Soracom
 
+We have been using the [Soracom Onyx LTE USB Modem + IoT SIM Card](https://www.soracom.io/store/onyx-usb-modem-sim-connectivity/) to send the inference results to Soracom services (Harvest Data & Harvest Files). We also used Soracom Lagoon to display the results on the Grafana-based dashboard service.
+
+To setup the Soracom Onyx LTE USB Modem, follow [this guide](https://developers.soracom.io/en/start/connect/soracom-onyx-lte/). The **Automated Installation** worked without any issue on our case:
+
+**Automated Installation (copied from Soracom Developer Guide)**
+
+*For your convenience, we provide a simple shell script that automates the process of installing NetworkManager and configuring it for use with Soracom.*
+
+SSH into your device and download the setup script:
+
+```
+sudo curl -O https://soracom-files.s3.amazonaws.com/connect/setup_eg25.sh
+```
+
+Next, modify the file properties so that it can be executed:
+
+```
+sudo chmod +x setup_eg25.sh
+```
+
+Run the script and follow the prompts:
+
+```
+sudo ./setup_eg25.sh
+```
+
+Once the script finishes installation, your device should automatically connect to a cellular network using the Onyx LTE dongle. You can then control the connection by using `sudo nmcli con up soracom` and `sudo nmcli con down soracom` commands.
+
+When done, log into your Soracom account:
+
+![Soracom console](docs/console-soracom.png)
