@@ -285,7 +285,7 @@ python3 app.py
 
 ```
 
-Open a webpage on the provided URL (http://192.168.1.173:5000 in our case):
+Open a webpage on the provided URL (http://192.168.1.173:5000 in our case or http://127.0.0.1:5000 if you have a monitor connected to your Raspberry Pi and you can access a webpage locally):
 
 The script will automatically upload to Soracom the number of person detected in front of the camera every 10 seconds and will upload an anonymized image every minute:
 
@@ -299,3 +299,4 @@ To find the uploaded images, navigate to **DATA STORAGE & VISUALISATION -> SORAC
 
 Finally, let's display all this information together in a simple dashboard using **Soracom Lagoon**
 
+![Soracom Lagoon](docs/soracom-lagoon.png)
