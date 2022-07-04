@@ -246,6 +246,56 @@ sudo ./setup_eg25.sh
 
 Once the script finishes installation, your device should automatically connect to a cellular network using the Onyx LTE dongle. You can then control the connection by using `sudo nmcli con up soracom` and `sudo nmcli con down soracom` commands.
 
-When done, log into your Soracom account:
+When done, log into your Soracom account and register your SIM if it has not been done automatically:
 
 ![Soracom console](docs/console-soracom.png)
+
+Add your SIM to a group: **Menu -> Group -> + Add Group**
+
+In your group settings, enable **SORACOM Harvest Data** and **SORACOM Harvest Files**
+
+![Soracom Group Settings](docs/soracom-group.png)
+
+![Soracom Enable Harvest](docs/soracom-enable-harvest.png)
+
+And then, from the menu, open **DATA STORAGE & VISUALISATION -> SORACOM Harvest Data**:
+
+From your RPI, edit the `app.py` script and enable the `use_soracom` flag
+
+```
+use_soracom = True
+```
+
+Launch the script:
+
+```
+python3 app.py 
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: on
+ * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.173:5000 (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 552-723-498
+
+```
+
+Open a webpage on the provided URL (http://192.168.1.173:5000 in our case):
+
+The script will automatically upload to Soracom the number of person detected in front of the camera every 10 seconds and will upload an anonymized image every minute:
+
+![Soracom harvest data](docs/soracom-harvest-data.png)
+
+*Note: Make sure to select your SIM resource on the top-left filter.*
+
+To find the uploaded images, navigate to **DATA STORAGE & VISUALISATION -> SORACOM Harvest Files**:
+
+![Soracom harvest files](docs/soracom-harvest-files.png)
+
+Finally, let's display all this information together in a simple dashboard using **Soracom Lagoon**
+

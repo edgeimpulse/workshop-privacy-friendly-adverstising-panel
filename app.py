@@ -14,7 +14,7 @@ countPeople = 0
 countPeopleList = [0]
 inferenceSpeed = 0
 videoCaptureDeviceId = int(1) # use 0 for web camera
-use_soracom = True
+use_soracom = False
   
 def now():
     return round(time.time() * 1000)
@@ -201,4 +201,4 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, port=3001)
+    app.run(debug=True)
