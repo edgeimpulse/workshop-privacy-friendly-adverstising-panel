@@ -301,4 +301,4 @@ To find the uploaded images, navigate to **DATA STORAGE & VISUALISATION -> SORAC
 
 Finally, let's display all this information together in a simple dashboard using **Soracom Lagoon**
 
-![Soracom Lagoon](docs/soracom-lagoon.png)
+![Soracom Lagoon](docs/grafana-dashboard.png)
