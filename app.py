@@ -9,11 +9,11 @@ from edge_impulse_linux.image import ImageImpulseRunner
 app = Flask(__name__, static_folder='templates/assets')
 
 runner = None
-scaleFactor = 5
+scaleFactor = 6
 countPeople = 0
 countPeopleList = [0]
 inferenceSpeed = 0
-videoCaptureDeviceId = int(1) # use 0 for web camera
+videoCaptureDeviceId = int(0) # use 0 for web camera
 use_soracom = False
   
 def now():
@@ -37,7 +37,6 @@ def gen_frames():  # generate frame by frame from camera
                 print('Loaded runner for "' + model_info['project']['owner'] + ' / ' + model_info['project']['name'] + '"')
                 labels = model_info['model_parameters']['labels']
                 
-
                 camera = cv2.VideoCapture(videoCaptureDeviceId)
                 ret = camera.read()[0]
                 if ret:
@@ -49,11 +48,12 @@ def gen_frames():  # generate frame by frame from camera
                 else:
                     raise Exception("Couldn't initialize selected camera.")
                 
-                next_frame = 0 # limit to ~10 fps here
+                next_frame = 0 # limit to ~100 fps max here
                 
                 for res, img in runner.classifier(videoCaptureDeviceId):
                     count = 0
                     img = cv2.resize(img, (img.shape[1]*scaleFactor,img.shape[0]*scaleFactor))
+                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                     
                     if (next_frame > now()):
                         time.sleep((next_frame - now()) / 1000)
@@ -77,8 +77,16 @@ def gen_frames():  # generate frame by frame from camera
                                 countPeople = countPeople + 1
                                 center_x = int(bb['x'] + bb['width']/2)*scaleFactor
                                 center_y = int(bb['y'] + bb['height']/2)*scaleFactor
-                                
-                                img = cv2.circle(img, (center_x, center_y), 80, (255,0,0), -1)
+                                mask_img = np.zeros(img.shape, dtype='uint8')
+
+                                # Blur the faces
+                                cv2.circle(mask_img, (center_x, center_y), 50, (255,255,255), -1)
+                                blur = cv2.medianBlur(img, 99)
+                                img = np.where(mask_img > 0, blur, img)
+                                img = cv2.circle(img, (center_x, center_y), 50, (0,255,0), 2)
+
+                                # Alternatively, for less compute usage, you can just draw a white circle on top of the images
+                                # img = cv2.circle(img, (center_x, center_y), 50, (255,255,255), -1)
                         
                     if(len(countPeopleList) < 12):
                         countPeopleList.insert(0,countPeople)
@@ -101,7 +109,7 @@ def gen_frames():  # generate frame by frame from camera
                     yield (b'--frame\r\n'
                         b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # concat frame one by one and show result
 
-                    next_frame = now() + 100
+                    next_frame = now() + 10
                     
             finally:
                 if (runner):

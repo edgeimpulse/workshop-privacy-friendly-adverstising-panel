@@ -6,19 +6,21 @@ However, many passers-by do not wish to be filmed in public spaces. And this is 
 
 This is why several companies started to work on "on-device anonymization" techniques using edge machine learning.
 
-[Edge Impulse](https://edgeimpulse.com) and [Soracom](https://www.soracom.io/) have partnered to build this tutorial to show you how to build a privacy-friendly advertising panel.
+[Edge Impulse](https://edgeimpulse.com), [Soracom](https://www.soracom.io/) and [Seeed Studio](https://www.seeedstudio.com/) have partnered to build this tutorial to show you how to build a privacy-friendly advertising panel.
 
-![with background](docs/render-with-background.gif)
+![with background](docs/privacy-ad-panel-result.gif)
 
 ## Requirements
 
 This proof of concept project has been built using:
 
-- A Raspberry Pi 4
+- A [Seeed reComputer Jetson](https://wiki.seeedstudio.com/reComputer_getting_started/)
 - An external USB camera
-- Soracom LTE USB Dongle
+- [Soracom LTE USB Dongle](https://www.soracom.io/store/onyx-usb-modem-sim-connectivity/)
 
-All the processing is done on the Raspberry Pi, the information sent contains the average number of people present in front of the screen (every 10 seconds) and a snapshot of the anonymized image every minute that can be used for further processing if needed.
+![materials](docs/materials.jpg)
+
+All the processing is done on the Seeed reComputer Jetson, the information sent contains the average number of people present in front of the screen (every 10 seconds) and a snapshot of the anonymized image every minute that can be used for further processing if needed.
 
 You will need an account on [Edge Impulse Studio](https://studio.edgeimpulse.com/) to build your machine learning model and an account on [Soracom console](https://console.soracom.io/) to retrieve the metrics provided by the advertising screen.
 
@@ -26,7 +28,7 @@ You will need an account on [Edge Impulse Studio](https://studio.edgeimpulse.com
 
 For this project, we are using [Edge Impulse FOMO](https://docs.edgeimpulse.com/docs/edge-impulse-studio/learning-blocks/object-detection/fomo-object-detection-for-constrained-devices) (Faster Objects, More Objects). It is a novel machine-learning algorithm that brings object detection to highly constrained devices. It lets you count objects, find the location of objects in an image, and track multiple objects in real-time using up to 30x less processing power and memory than MobileNet SSD or YOLOv5.
 
-This means FOMO models will run very fast even on a Raspberry Pi 4 (around 35 FPS in this case). However, it removes one of the useful advantages of MobileNet SSD of YOLOv5 which are the bounding boxes.
+This means FOMO models will run very fast even on a Seeed reComputer Jetson (around 35 FPS in this case). However, it removes one of the useful advantages of MobileNet SSD of YOLOv5 which are the bounding boxes.
 
 FOMO is trained on centroid, thus will provide only the location of the objects and not their size.
 
@@ -148,17 +150,17 @@ With the model trained we can try it out on some test data. When we collected ou
 
 ![Model testing](docs/studio-model-testing.png)
 
-### Validate your model on the device
+### Validate your model your Seeed reComputer Jetson
 
 With the impulse designed, trained, and verified we can now deploy this model back to our device.
 
 This makes the model run without an internet connection, minimizes latency, and runs with minimum power consumption. Edge Impulse can package up the complete impulse - including the preprocessing steps, neural network weights, and classification code - in a single C++ library or linux executable that you can include in your embedded software.
 
-*In this tutorial, we are using a Raspberry Pi but the following procedures should work on any Linux x86 or MacOS devices.*
+*In this tutorial, we are using a Seeed reComputer Jetson but the following procedures should work on any Raspberry Pi 4, Linux x86 or MacOS devices.*
 
- From your Raspberry Pi, make sure to install the dependencies. You can find the procedure on the [Edge Impulse documentation website](https://docs.edgeimpulse.com/docs/development-platforms/officially-supported-cpu-gpu-targets/raspberry-pi-4)
+ From your Seeed reComputer Jetson, make sure to install the dependencies. You can find the procedure on the [Edge Impulse documentation website](https://docs.edgeimpulse.com/docs/development-platforms/community-boards/seeed-recomputer-jetson)
 
-From your Raspberry Pi terminal, simply run `edge-impulse-linux-runner --clean`. This will build and download your model, and then run it on your development board. If you're on the same network you can get a view of the camera, and the classification results directly from your dev board. You'll see a line like:
+From your Seeed reComputer Jetson terminal, simply run `edge-impulse-linux-runner --clean`. This will build and download your model, and then run it on your development board. If you're on the same network you can get a view of the camera, and the classification results directly from your dev board. You'll see a line like:
 
 ```
 Want to see a feed of the camera and live classification in your browser? Go to http://192.168.8.117:4912
@@ -171,11 +173,11 @@ Open that link in a browser, Edge Impulse ships a small web page to see the live
 Great, now we have a model that can locate our faces in the image!
 
 Now to anonymize the image, several techniques exist, from a simple blurring technique to CLEANIR or DeepPrivacy models that can preserve some useful features for further processing (age, gender, look direction).
-We don't want to enter into that complexity here as we want to keep our application lightweight, so we will just draw a white circle on top of the faces in the images.
+We don't want to enter into that complexity here as we want to keep our application lightweight, so we will just draw a white circle on top of the faces in the images or blur the region where a face is located.
 
 ## Use Edge Impulse Python SDK to integrate your custom model in a custom application
 
-We built a small Python application that will run the inference on your device, draw a white circle on the face's location and display a web page with the results.
+We built a small Python application that will run the inference on your device, blur the region where the faces are and display a web page with the results.
 
 You can freely customize this application as you wish to create something that specifically match your business logic!
 
@@ -212,7 +214,7 @@ And run the application:
 python3 app.py
 ```
 
-![gif](templates/assets/render.gif)
+![gif](docs/results.gif)
 
 *Note: If you have several webcams attached to your computer, you can change the index of your camera in `app.py` line 16: `videoCaptureDeviceId = int(0) # use 0 for web camera`. You can also import a video stream and adapt the code easily, feel free to have a look at our [python images example](https://github.com/edgeimpulse/linux-sdk-python/tree/master/examples/image).*
 
@@ -287,7 +289,7 @@ python3 app.py
 
 ```
 
-Open a webpage on the provided URL (http://192.168.1.173:5000 in our case or http://127.0.0.1:5000 if you have a monitor connected to your Raspberry Pi and you can access a webpage locally):
+Open a webpage on the provided URL (http://192.168.1.173:5000 in our case or http://127.0.0.1:5000 if you have a monitor connected to your Seeed reComputer Jetson and you can access a webpage locally):
 
 The script will automatically upload to Soracom the number of people detected in front of the camera every 10 seconds and will upload an anonymized image every minute:
 
@@ -302,3 +304,13 @@ To find the uploaded images, navigate to **DATA STORAGE & VISUALISATION -> SORAC
 Finally, let's display all this information together in a simple dashboard using **Soracom Lagoon**
 
 ![Soracom Lagoon](docs/grafana-dashboard.png)
+
+Soracom Lagoon will automatically fetch the fields available from Harvest. To add a widget, just click on the top right corner and select the widget you want to add, here we added a simple **Gauge** and a **Graph** to display the number of people.
+
+To add the image, you will need to select a **Soracom Dynamic Image** widget and configure it as follow:
+
+![Soracom Dynamic Image](docs/soracom-dynamic-image.png).
+
+Et voilà !
+
+Do not hesitate to reproduce this tutorial and let us know if you have any question on [Edge Impulse Forum](https://forum.edgeimpulse.com/), we'd be happy to help you.
