@@ -6,9 +6,17 @@ However, many passers-by do not wish to be filmed in public spaces. And this is 
 
 This is why several companies started to work on "on-device anonymization" techniques using edge machine learning.
 
-[Edge Impulse](https://edgeimpulse.com), [Soracom](https://www.soracom.io/) and [Seeed Studio](https://www.seeedstudio.com/) have partnered to build this tutorial to show you how to build a privacy-friendly advertising panel.
+[Edge Impulse](https://edgeimpulse.com), [Soracom](https://www.soracom.io/) and [Seeed Studio](https://www.seeedstudio.com/) have partnered to build this tutorial to show you how to build a privacy-friendly advertising panel including: 
 
-![with background](docs/privacy-ad-panel-result.gif)
+- Training a machine learning model to detect the faces using Edge Impulse.
+
+- Building a web application running locally on the Seeed reComputer Jetson:
+
+![Web app with background](docs/privacy-ad-panel-result.gif)
+
+- Setup a remote dashboard using Soracom Lagoon service:
+
+![Soracom Lagoon results](docs/soracom-lagoon-results.png)
 
 ## Requirements
 
@@ -160,7 +168,11 @@ This makes the model run without an internet connection, minimizes latency, and 
 
  From your Seeed reComputer Jetson, make sure to install the dependencies. You can find the procedure on the [Edge Impulse documentation website](https://docs.edgeimpulse.com/docs/development-platforms/community-boards/seeed-recomputer-jetson)
 
-From your Seeed reComputer Jetson terminal, simply run `edge-impulse-linux-runner --clean`. This will build and download your model, and then run it on your development board. If you're on the same network you can get a view of the camera, and the classification results directly from your dev board. You'll see a line like:
+From your Seeed reComputer Jetson terminal, simply run `edge-impulse-linux-runner --clean`. 
+
+![reComputer screenshot](docs/recomputer-screenshot.png)
+
+This will build and download your model, and then run it on your development board. If you're on the same network you can get a view of the camera, and the classification results directly from your dev board. You'll see a line like:
 
 ```
 Want to see a feed of the camera and live classification in your browser? Go to http://192.168.8.117:4912
@@ -223,6 +235,8 @@ python3 app.py
 ## Send the inference results with Soracom
 
 We have been using the [Soracom Onyx LTE USB Modem + IoT SIM Card](https://www.soracom.io/store/onyx-usb-modem-sim-connectivity/) to send the inference results to Soracom services (Harvest Data & Harvest Files). We also used Soracom Lagoon to display the results on the Grafana-based dashboard service.
+
+To learn more about all Soracom services, please have a look at [Soracom developer docs](https://developers.soracom.io/en/docs/).
 
 To set up the Soracom Onyx LTE USB Modem, follow [this guide](https://developers.soracom.io/en/start/connect/soracom-onyx-lte/). The **Automated Installation** worked without any issue on our case:
 
@@ -309,7 +323,7 @@ Soracom Lagoon will automatically fetch the fields available from Harvest. To ad
 
 To add the image, you will need to select a **Soracom Dynamic Image** widget and configure it as follow:
 
-![Soracom Dynamic Image](docs/soracom-dynamic-image.png).
+![Soracom Dynamic Image](docs/soracom-dynamic-image.png)
 
 Et voilà !
 
