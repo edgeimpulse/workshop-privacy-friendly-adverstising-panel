@@ -18,6 +18,10 @@ This is why several companies started to work on "on-device anonymization" techn
 
 ![Soracom Lagoon results](docs/soracom-lagoon-results.png)
 
+## Workshop's video
+
+[![Workshop video](http://img.youtube.com/vi/G2TIFtG-PbM/0.jpg)](https://www.youtube.com/watch?v=G2TIFtG-PbM)
+
 ## Requirements
 
 This proof of concept project has been built using:
